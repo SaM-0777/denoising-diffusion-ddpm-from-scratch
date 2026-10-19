@@ -81,8 +81,18 @@ def noise_prediction_loss(noise_pred, noise):
     # TODO: MSE between predicted and true noise
     return F.mse_loss(noise, noise_pred)
 
-# Step 8 - diffusion_training_loss (not yet solved)
-# TODO: implement
+# Step 8 - diffusion_training_loss
+import torch
+import torch.nn.functional as F
+
+def diffusion_training_loss(model, x0, t, noise, alphas_cumprod):
+    # TODO: q_sample -> model -> MSE(noise_pred, noise)
+    bar_alpha_t = alphas_cumprod[t][:, None, None, None]
+    x_t = torch.sqrt(bar_alpha_t) * x0 + torch.sqrt(1 - bar_alpha_t) * noise
+
+    noise_pred = model(x_t, t)
+
+    return F.mse_loss(noise_pred, noise)
 
 # Step 9 - timestep_embedding (not yet solved)
 # TODO: implement
