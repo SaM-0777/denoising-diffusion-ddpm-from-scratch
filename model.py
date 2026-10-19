@@ -41,8 +41,15 @@ def extract_into_batch(a, t, x):
     B, _, _, _ = x.shape
     return a[t].view(B, 1, 1, 1)
 
-# Step 5 - q_sample (not yet solved)
-# TODO: implement
+# Step 5 - q_sample
+import torch
+import torch.nn.functional as F
+
+def q_sample(x0, t, noise, alphas_cumprod):
+    # TODO: x_t = sqrt(bar_alpha_t) * x0 + sqrt(1 - bar_alpha_t) * noise
+    bar_alpha_t = alphas_cumprod[t][:, None, None, None]
+    x_t = torch.sqrt(bar_alpha_t) * x0 + torch.sqrt(1 - bar_alpha_t) * noise
+    return x_t
 
 # Step 6 - build_diffusion_schedule (not yet solved)
 # TODO: implement
