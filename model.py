@@ -253,8 +253,38 @@ def predict_x0_from_eps(x_t, t, eps, alphas_cumprod):
     x0_hat = (x_t - torch.sqrt(1 - alpha_bar_t) * eps) / torch.sqrt(alpha_bar_t)
     return x0_hat
 
-# Step 16 - ddpm_p_mean_variance (not yet solved)
-# TODO: implement
+# Step 16 - ddpm_p_mean_variance
+import torch
+
+def ddpm_p_mean_variance(x_t, t, eps, schedule):
+    alphas = schedule["alphas"]
+    alphas_cumprod = schedule["alphas_cumprod"]
+    betas = schedule["betas"]
+
+    x0_hat = predict_x0_from_eps(x_t, t, eps, alphas_cumprod)
+    x0_hat = torch.clamp(x0_hat, -1.0, 1.0)
+
+    alpha_bar_t = extract_into_batch(alphas_cumprod, t, x_t)
+    alpha_t = extract_into_batch(alphas, t, x_t)
+    beta_t = extract_into_batch(betas, t, x_t)
+
+    # alpha_bar_{t-1}, with alpha_bar_{-1} = 1
+    prev_t = (t - 1).clamp(min=0)
+    alpha_bar_prev = extract_into_batch(alphas_cumprod, prev_t, x_t)
+    alpha_bar_prev = torch.where(
+        (t == 0).view(-1, 1, 1, 1),
+        torch.ones_like(alpha_bar_prev),
+        alpha_bar_prev
+    )
+
+    mean = (
+        torch.sqrt(alpha_bar_prev) * beta_t / (1 - alpha_bar_t) * x0_hat
+        + torch.sqrt(alpha_t) * (1 - alpha_bar_prev) / (1 - alpha_bar_t) * x_t
+    )
+
+    variance = beta_t
+
+    return mean, variance, x0_hat
 
 # Step 17 - ddpm_p_sample (not yet solved)
 # TODO: implement
