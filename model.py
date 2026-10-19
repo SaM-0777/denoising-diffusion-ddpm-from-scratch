@@ -24,8 +24,13 @@ def alphas_from_betas(betas):
     aplha_t = 1 - betas
     return aplha_t
 
-# Step 3 - cumprod_alphas (not yet solved)
-# TODO: implement
+# Step 3 - cumprod_alphas
+import torch
+import torch.nn.functional as F
+
+def cumprod_alphas(alphas):
+    # TODO: cumulative product of alphas
+    return torch.cumprod(alphas, axis=0)
 
 # Step 4 - extract_into_batch (not yet solved)
 # TODO: implement
